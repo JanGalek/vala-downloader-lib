@@ -19,7 +19,7 @@ vala_downloader_lib = shared_library(
   downloader_lib_sources,
   dependencies: vala_downloader_deps,
   install: true,
-  vala_vapi: 'vala-downloader-lib.vapi',
+  vala_vapi: 'vapi/vala-downloader-lib.vapi',
   vala_header: 'vala-downloader-lib.h'
 )
 

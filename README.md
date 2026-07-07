@@ -16,6 +16,97 @@ Or run it directly from GitHub:
 curl -sSfL https://raw.githubusercontent.com/JanGalek/vala-downloader-lib/refs/heads/master/init.sh -o init.sh && chmod +x init.sh && ./init.sh && rm init.sh
 ```
 
+## Use In Other Projects
+
+Yes. The generated artifacts are intended for reuse:
+
+- `build-release/src/libvala-downloader-lib.so*`
+- `build-release/src/vapi/vala-downloader-lib.vapi`
+- `build-release/src/vala-downloader-lib.h`
+
+### Option 1: Meson subproject (recommended)
+
+In your consumer project `meson.build`:
+
+```meson
+vala_downloader_dep = dependency('vala_downloader', fallback: ['vala-downloader-lib', 'vala_downloader_dep'])
+
+executable('my-app',
+	['src/main.vala'],
+	dependencies: [vala_downloader_dep],
+)
+```
+
+Then in Vala code:
+
+```vala
+using Downloader;
+```
+
+### Option 2: Installed library (pkg-config)
+
+Install this project first:
+
+```sh
+meson setup builddir
+meson compile -C builddir
+meson install -C builddir
+```
+
+In your consumer `meson.build`:
+
+```meson
+vala_downloader_dep = dependency('vala-downloader-lib', method: 'pkg-config')
+```
+
+### Option 3: Local `vapi` folder in your project
+
+If you want everything vendored inside your own repository, copy release artifacts into your consumer project, for example:
+
+- `your-project/vapi/vala-downloader-lib.vapi`
+- `your-project/lib/libvala-downloader-lib.so`
+- `your-project/include/vala-downloader-lib.h`
+
+To automate this setup, run the helper script in your consumer project root:
+
+```sh
+curl -sSfL https://raw.githubusercontent.com/JanGalek/vala-downloader-lib/master/init-local-vapi.sh | bash
+```
+
+The script will:
+
+- build `vala-downloader-lib` from source
+- copy artifacts into your local `vapi/`, `lib/`, and `include/` directories
+- append an idempotent helper block to your `meson.build` with reusable variables
+
+You can also run it from a local file copy:
+
+```sh
+./init-local-vapi.sh
+```
+
+Then configure your consumer `meson.build`:
+
+```meson
+executable('my-app',
+	['src/main.vala'],
+	dependencies: [
+		dependency('glib-2.0'),
+		dependency('gio-2.0'),
+		dependency('libsoup-3.0'),
+	],
+	vala_args: ['--vapidir=' + meson.project_source_root() / 'vapi'],
+	c_args: ['-I' + meson.project_source_root() / 'include'],
+	link_args: ['-L' + meson.project_source_root() / 'lib', '-lvala-downloader-lib'],
+)
+```
+
+And load the shared library at runtime, for example:
+
+```sh
+LD_LIBRARY_PATH=./lib ./my-app
+```
+
 ## Features
 
 - Synchronous and asynchronous download methods

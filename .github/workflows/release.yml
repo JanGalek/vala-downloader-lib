@@ -45,5 +45,5 @@ jobs:
           if-no-files-found: warn
           path: |
             build-release/src/libvala-downloader-lib.so*
-            build-release/src/vala-downloader-lib.vapi
+            build-release/src/vapi/vala-downloader-lib.vapi
             build-release/src/vala-downloader-lib.h
