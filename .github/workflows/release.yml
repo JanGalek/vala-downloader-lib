@@ -19,6 +19,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate meson.build version matches tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          FILE_VERSION="$(sed -nE "s/^project\('([^']+)', 'vala', 'c', version: '([^']+)'\).*$/\2/p" meson.build)"
+
+          if [ -z "${FILE_VERSION}" ]; then
+            echo "::error::Unable to read project version from meson.build"
+            exit 1
+          fi
+
+          if [ "${FILE_VERSION}" != "${TAG_VERSION}" ]; then
+            echo "::error::meson.build version (${FILE_VERSION}) does not match tag (${TAG_VERSION})."
+            echo "Update meson.build, commit, and create/push the tag again."
+            exit 1
+          fi
+
+          echo "meson.build version matches tag: ${TAG_VERSION}"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
