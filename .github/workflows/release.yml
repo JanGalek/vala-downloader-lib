@@ -1,0 +1,49 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            meson \
+            ninja-build \
+            valac \
+            pkg-config \
+            libglib2.0-dev \
+            libsoup-3.0-dev \
+            libgee-0.8-dev
+
+      - name: Configure release build
+        run: meson setup build-release --buildtype=release
+
+      - name: Build release
+        run: meson compile -C build-release
+
+      - name: Run tests
+        run: meson test -C build-release --print-errorlogs
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vala-downloader-lib-linux
+          if-no-files-found: warn
+          path: |
+            build-release/src/libvala-downloader-lib.so*
+            build-release/src/vala-downloader-lib.vapi
+            build-release/src/vala-downloader-lib.h
