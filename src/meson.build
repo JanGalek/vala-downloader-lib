@@ -28,8 +28,8 @@ vala_downloader_dep = declare_dependency(
 pkg = import('pkgconfig')
 pkg.generate(
   vala_downloader_lib,
-  version: '1.0',
-  name: 'vala-downloader-lib',
-  filebase: 'vala-downloader-lib',
+  version: meson.project_version(),
+  name: meson.project_name(),
+  filebase: meson.project_name(),
   description: 'Vala Downloader Library.'
 )
