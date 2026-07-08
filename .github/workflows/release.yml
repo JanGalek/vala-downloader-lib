@@ -92,22 +92,11 @@ jobs:
             if [ -n "${PREVIOUS_TAG}" ]; then
               echo "Changes since ${PREVIOUS_TAG}:"
               echo
-              git log --no-merges --pretty=format:'- %s (%h)' "${RELEASE_RANGE}" || true
+              git log --no-merges --pretty=format:'- %s (%h) by @%an' "${RELEASE_RANGE}" || true
             else
               echo "Initial release changes:"
               echo
-              git log --no-merges --pretty=format:'- %s (%h)' "${RELEASE_RANGE}" || true
-            fi
-            echo
-            echo
-            echo "## Contributors"
-            echo
-
-            CONTRIBUTOR_COUNT="$(git log --no-merges --format='%aN' "${RELEASE_RANGE}" | sed '/^$/d' | sort -u | wc -l | tr -d ' ')"
-            if [ "${CONTRIBUTOR_COUNT}" = "0" ]; then
-              echo "- _No contributors found in this release range._"
-            else
-              git log --no-merges --format='%aN' "${RELEASE_RANGE}" | sed '/^$/d' | sort -u | sed 's/^/- /'
+              git log --no-merges --pretty=format:'- %s (%h) by @%an' "${RELEASE_RANGE}" || true
             fi
             echo
           } > RELEASE_NOTES.md
