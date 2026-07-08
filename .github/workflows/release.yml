@@ -75,6 +75,8 @@ jobs:
 
       - name: Generate release notes
         if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           CURRENT_TAG="${GITHUB_REF_NAME}"
           PREVIOUS_TAG="$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -n 1 || true)"
@@ -92,12 +94,25 @@ jobs:
             if [ -n "${PREVIOUS_TAG}" ]; then
               echo "Changes since ${PREVIOUS_TAG}:"
               echo
-              git log --no-merges --pretty=format:'- %s (%h) by @%an' "${RELEASE_RANGE}" || true
             else
               echo "Initial release changes:"
               echo
-              git log --no-merges --pretty=format:'- %s (%h) by @%an' "${RELEASE_RANGE}" || true
             fi
+
+            while IFS='|' read -r commit_sha commit_subject; do
+              [ -n "${commit_sha}" ] || continue
+
+              github_login="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${commit_sha}" --jq '.author.login // empty' 2>/dev/null || true)"
+
+              short_sha="$(printf '%s' "${commit_sha}" | cut -c1-7)"
+              if [ -n "${github_login}" ]; then
+                echo "- ${commit_subject} (${short_sha}) by @${github_login}"
+              else
+                git_name="$(git show -s --format='%an' "${commit_sha}" 2>/dev/null || echo unknown)"
+                echo "- ${commit_subject} (${short_sha}) by ${git_name}"
+              fi
+            done < <(git log --no-merges --pretty=format:'%H|%s' "${RELEASE_RANGE}")
+
             echo
           } > RELEASE_NOTES.md
 
