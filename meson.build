@@ -1,4 +1,4 @@
-project('vala-downloader-lib', 'vala', 'c', version: '0.3.5')
+project('vala-downloader-lib', 'vala', 'c', version: '0.3.6')
 
 subdir('src')
 subdir('tests')
