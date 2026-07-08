@@ -2,6 +2,11 @@ test_env = environment()
 test_sources = files(
   'main.vala',
   'example_test.vala',
+  'download_async_local_server_test.vala',
+  'download_sync_local_server_test.vala',
+  'download_sync_not_found_test.vala',
+  'download_sync_internal_error_test.vala',
+  'queue_test.vala',
 )
 
 
