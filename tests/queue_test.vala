@@ -46,8 +46,8 @@ namespace AppTests {
             string missing_dest_path = Path.build_filename (temp_dir, "downloaded-batch-sync-missing.txt");
 
             var manager = new Manager ();
-            manager.add_to_download (ok_url, ok_dest_path);
-            manager.add_to_download (missing_url, missing_dest_path);
+            var queued_ok = manager.add_to_download (ok_url, ok_dest_path);
+            var queued_missing = manager.add_to_download (missing_url, missing_dest_path);
 
             var loop = new MainLoop (null, false);
             Gee.ArrayList<BatchDownloadResult>? results = null;
@@ -68,6 +68,8 @@ namespace AppTests {
 
             assert (results != null);
             assert (results.size == 2);
+            assert (results[0] == queued_ok);
+            assert (results[1] == queued_missing);
 
             var ok_result = results[0];
             assert (ok_result.error_message == null);
@@ -133,8 +135,8 @@ namespace AppTests {
             string missing_dest_path = Path.build_filename (temp_dir, "downloaded-batch-async-missing.txt");
 
             var manager = new Manager ();
-            manager.add_to_download (ok_url, ok_dest_path);
-            manager.add_to_download (missing_url, missing_dest_path);
+            var queued_ok = manager.add_to_download (ok_url, ok_dest_path);
+            var queued_missing = manager.add_to_download (missing_url, missing_dest_path);
 
             var loop = new MainLoop (null, false);
 
@@ -149,6 +151,8 @@ namespace AppTests {
 
             assert (results != null);
             assert (results.size == 2);
+            assert (results[0] == queued_ok);
+            assert (results[1] == queued_missing);
 
             var ok_result = results[0];
             assert (ok_result.error_message == null);

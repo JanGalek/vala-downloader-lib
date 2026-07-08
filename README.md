@@ -30,7 +30,7 @@ Namespace: `ValaFoundation.Downloader`
 - `Manager`
   - `download(string url, string dest_path) -> Result`
   - `download_async(string url, string dest_path) -> Result`
-	- `add_to_download(string url, string dest_path)`
+	- `add_to_download(string url, string dest_path) -> BatchDownloadResult`
 	- `download_queued(bool clear_after_download = true) -> Gee.ArrayList<BatchDownloadResult>`
 	- `download_queued_async(bool clear_after_download = true) -> Gee.ArrayList<BatchDownloadResult>`
 	- `clear_download_queue()`
@@ -130,11 +130,16 @@ using ValaFoundation.Downloader;
 public async int run_batch_async () {
 	var manager = new Manager ();
 
-	manager.add_to_download ("https://example.com/file-a.zip", "/tmp/file-a.zip");
+	var file_a = manager.add_to_download ("https://example.com/file-a.zip", "/tmp/file-a.zip");
 	manager.add_to_download ("https://example.com/file-b.zip", "/tmp/file-b.zip");
 	manager.add_to_download ("https://example.com/file-c.zip", "/tmp/file-c.zip");
 
 	var results = yield manager.download_queued_async ();
+
+	// file_a is the same object as one item in results and now contains Result metrics.
+	if (file_a.result != null) {
+		stdout.printf ("file-a remaining=%" + int64.FORMAT + " s\n", file_a.result.remaining_time);
+	}
 
 	foreach (var item in results) {
 		if (item.error_message != null) {
