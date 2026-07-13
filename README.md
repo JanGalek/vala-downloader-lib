@@ -11,6 +11,7 @@ A small Vala library for downloading files with optional speed limiting.
 - [Example: queued downloads (multiple files)](#example-queued-downloads-multiple-files)
 - [Use In Other Projects](#use-in-other-projects)
 - [Quick init (dependency setup)](#quick-init-dependency-setup)
+- [Install via Vamposer](#install-via-vamposer)
 - [Build](#build)
 - [Test](#test)
 - [Dependencies](#dependencies)
@@ -230,6 +231,37 @@ The script will:
 - fallback to building `vala-downloader-lib` from source when release assets are unavailable
 - copy artifacts into your local `vapi/`, `lib/`, and `include/` directories
 - append an idempotent helper block to your `meson.build` with reusable variables
+
+## Install via [Vamposer](https://github.com/ValaFoundation/vamposer)
+
+In your consumer project root:
+
+```sh
+vamposer require ValaFoundation/downloader-lib master
+vamposer install
+```
+
+Then include generated Vamposer dependencies in your `meson.build`:
+
+```meson
+subdir('vamposer')
+
+executable('my-app',
+	sources,
+	dependencies: [
+		vamposer_deps
+	]
+)
+```
+
+You can also use a fixed tag or commit instead of `master`.
+
+If you also want the test workspace, install it as a development dependency:
+
+```sh
+vamposer require --dev ValaFoundation/testcases master
+vamposer install --dev
+```
 
 You can also run it from a local file copy:
 
